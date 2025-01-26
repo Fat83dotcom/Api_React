@@ -9,7 +9,7 @@ class Customer(models.Model):
     address = models.CharField(max_length=255)
 
     def __str__(self):
-        return f'{self.category_name}'
+        return f'{self.name}'
 
 
 class ProductCategory(models.Model):
@@ -28,7 +28,7 @@ class Product(models.Model):
     )
 
     def __str__(self):
-        return f'{self.category_name}'
+        return f'{self.name}'
 
 
 class Order(models.Model):
@@ -40,7 +40,7 @@ class Order(models.Model):
     order_status = models.BooleanField(default=True)
 
     def __str__(self):
-        return f'{self.category_name}'
+        return f'{self.id_customer.name}'
 
 
 class OrderItems(models.Model):
