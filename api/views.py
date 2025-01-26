@@ -2,7 +2,7 @@
 from rest_framework.views import APIView
 from rest_framework import serializers
 from rest_framework.response import Response
-from api.models import Customer, Product
+from api.models import Customer, Product, ProductCategory
 from rest_framework import status
 
 
@@ -37,6 +37,10 @@ class CustomerPostView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class ProductCategoryPostView(APIView):
+    pass
+
+
 class ProductPostView(APIView):
     def post(self, request):
         serializer = ProductSerializer(data=request.data)
@@ -60,6 +64,15 @@ class CustomerSerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         return Customer.objects.create(**validated_data)
+
+
+class ProductCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductCategory
+        fields = ['category_name']
+    
+    def create(self, validated_data):
+        return ProductCategory.objects.create(**validated_data)
 
 
 class ProductSerializer(serializers.ModelSerializer):
