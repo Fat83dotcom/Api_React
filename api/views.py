@@ -7,8 +7,6 @@ from rest_framework import status
 from django.db.models import Q
 
 
-
-
 class CustomerGetView(APIView):
     def get(self, request):
         query = Customer.objects.all()
@@ -96,6 +94,18 @@ class ProductGetView(APIView):
             many=True
         )
         return Response(serializer.data)
+
+
+class CategoryGetView(APIView):
+    def get(self, request):
+        query = ProductCategory.objects.all()
+        if query.exists():
+            serializer = ProductCategorySerializer(
+                instance=query,
+                many=True
+            )
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_404_NOT_FOUND)
 
 
 class CustomerPostView(APIView):
