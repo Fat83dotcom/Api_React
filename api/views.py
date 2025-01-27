@@ -4,6 +4,7 @@ from rest_framework import serializers
 from rest_framework.response import Response
 from api.models import Customer, Product, ProductCategory
 from rest_framework import status
+from django.db.models import Q
 
 
 
@@ -16,6 +17,75 @@ class CustomerGetView(APIView):
             many=True
         )
         return Response(serializer.data)
+
+
+class CustomerGetSearchView(APIView):
+    def get(self, request):
+        search_name: str = request.query_params.get('search_name', None)
+        if not search_name:
+            return Response(
+                {"error": "O parametro search_name é obrigatório."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        if search_name.isnumeric():
+            item = Customer.objects.filter(
+                Q(id__icontains=search_name)
+            )
+
+            if not item.exists():
+                return Response(
+                    {"msg": "Nenhum item foi encontrado"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            serializer = CustomerSearchSerializer(
+                instance=item,
+                many=True
+            )
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        part: list = search_name.split()
+
+        if len(part) == 2:
+
+            first_name, second_name = part
+
+            item = Customer.objects.filter(
+                Q(name__icontains=first_name) , Q(second_name__icontains=second_name)
+            )
+
+            if not item.exists():
+                return Response(
+                    {"msg": "Nenhum item foi encontrado"},
+                    status=status.HTTP_404_NOT_FOUND
+                )
+
+            serializer = CustomerSearchSerializer(
+                instance=item,
+                many=True
+            )
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+        item = Customer.objects.filter(
+            Q(name__icontains=search_name)
+        )
+
+        if not item.exists():
+            return Response(
+                {"msg": "Nenhum item foi encontrado"},
+                status=status.HTTP_404_NOT_FOUND
+            )
+
+        serializer = CustomerSearchSerializer(
+            instance=item,
+            many=True
+        )
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class ProductGetView(APIView):
@@ -86,3 +156,9 @@ class ProductSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         return Product.objects.create(**validated_data)
+
+
+class CustomerSearchSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Customer
+        fields = ['id', 'name', 'second_name']
