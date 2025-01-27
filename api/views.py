@@ -172,3 +172,12 @@ class CustomerSearchSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
         fields = ['id', 'name', 'second_name']
+
+
+class ProductCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductCategory
+        fields = ['id', 'category_name']
+    
+    def create(self, validated_data):
+        return ProductCategory.objects.create(**validated_data)
