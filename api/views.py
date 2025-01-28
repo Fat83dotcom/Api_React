@@ -138,10 +138,14 @@ class ProductPostView(APIView):
 class CreateOrder(APIView):
     def post(self, request):
         serializer = OrderCreateSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        customer_id = request.data['id_customer']
+        print(customer_id)
+        if OrderValidator.check_order_open_to_customer(customer_id):
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data, status=status.HTTP_201_CREATED)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -200,7 +204,18 @@ class ProductCategorySerializer(serializers.ModelSerializer):
 class OrderCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
-        fields = ['id_customer', 'total', 'order_status']
+        fields = ['id_customer', 'total']
     
     def create(self, validated_data):
-        return Order.object.create(**validated_data)
+        return Order.objects.create(**validated_data)
+
+
+class OrderValidator():
+
+    @classmethod
+    def check_order_open_to_customer(cls, customer_id)-> bool:
+        orders = Order.objects.all().filter(id_customer_id=customer_id)
+        for order in orders:
+            if order.order_status:
+                return False
+        return True
