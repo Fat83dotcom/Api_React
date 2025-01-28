@@ -118,8 +118,13 @@ class CustomerPostView(APIView):
 
 
 class ProductCategoryPostView(APIView):
-    pass
-
+    def post(self, request):
+        serializer = ProductCategorySerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
 
 class ProductPostView(APIView):
     def post(self, request):
@@ -161,7 +166,8 @@ class ProductSerializer(serializers.ModelSerializer):
         fields = [
             'name',
             'price',
-            'quantity'
+            'quantity',
+            'category'
         ]
 
     def create(self, validated_data):
