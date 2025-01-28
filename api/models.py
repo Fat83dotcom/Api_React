@@ -35,7 +35,7 @@ class Order(models.Model):
     id_customer = models.ForeignKey(
         to=Customer, related_name='customer', on_delete=models.CASCADE
     )
-    date = models.DateField()
+    date = models.DateField(auto_now_add=True)
     total = models.FloatField()
     order_status = models.BooleanField(default=True)
 
