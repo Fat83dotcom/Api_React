@@ -2,7 +2,7 @@
 from rest_framework.views import APIView
 from rest_framework import serializers
 from rest_framework.response import Response
-from api.models import Customer, Product, ProductCategory
+from api.models import Customer, Product, ProductCategory, Order
 from rest_framework import status
 from django.db.models import Q
 
@@ -132,7 +132,15 @@ class ProductPostView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        print(serializer.errors)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CreateOrder(APIView):
+    def post(self, request):
+        serializer = OrderCreateSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -187,3 +195,12 @@ class ProductCategorySerializer(serializers.ModelSerializer):
     
     def create(self, validated_data):
         return ProductCategory.objects.create(**validated_data)
+
+
+class OrderCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['id_customer', 'total', 'order_status']
+    
+    def create(self, validated_data):
+        return Order.object.create(**validated_data)
