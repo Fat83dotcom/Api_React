@@ -39,9 +39,6 @@ class Order(models.Model):
     total = models.FloatField()
     order_status = models.BooleanField(default=True)
 
-    def __str__(self):
-        return f'{self.id_customer.name}'
-
 
 class OrderItems(models.Model):
     id_order = models.ForeignKey(to=Order, related_name='order_items', on_delete=models.CASCADE)
