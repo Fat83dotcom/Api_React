@@ -139,13 +139,32 @@ class CreateOrder(APIView):
     def post(self, request):
         serializer = OrderCreateSerializer(data=request.data)
         customer_id = request.data['id_customer']
-        print(customer_id)
         if OrderValidator.check_order_open_to_customer(customer_id):
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         return Response(status=status.HTTP_401_UNAUTHORIZED)
+
+
+class CustomerDataByOrder:
+    pass
+
+
+class SearchOrderCustomerIdGetView(APIView):
+    def get(self, request):
+        search_order = request.query_params.get('search_order', None)
+
+        if not search_order:
+            error = {'error': 'Falta parametro de consulta.'}
+            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+        
+        if search_order.isnumeric():
+            query = Order.objects.filter(id_customer=search_order).last()
+            serializer = OrderSerializer(instance=query)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class CustomerSerializer(serializers.ModelSerializer):
@@ -218,7 +237,22 @@ class OrderValidator():
         check_order_status: list = [
             order.order_status for order in orders
         ]
-        print(check_order_status)
         if True in check_order_status:
             return False
         return True
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    customer_name = serializers.CharField(source='id_customer.name', read_only=True)
+    customer_second_name = serializers.CharField(source='id_customer.second_name', read_only=True)
+
+    class Meta:
+        model = Order
+        fields = [
+            'customer_name',
+            'customer_second_name',
+            'pk',
+            'date',
+            'total',
+            'order_status'
+        ]
