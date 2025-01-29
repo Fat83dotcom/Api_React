@@ -1,6 +1,6 @@
 from django.urls import path
 from api.views import CustomerGetView, CustomerPostView, ProductPostView, CustomerGetSearchView
-from api.views import CategoryGetView, ProductCategoryPostView, CreateOrder
+from api.views import CategoryGetView, ProductCategoryPostView, CreateOrder, SearchOrderCustomerIdGetView
 
 urlpatterns = [
     path('get_customers/', CustomerGetView.as_view(), name='customers_g'),
@@ -14,4 +14,5 @@ urlpatterns = [
         name='register_product_category'
     ),
     path('create_order/', CreateOrder.as_view(), name='crete_order_p'),
+    path('search_order/', SearchOrderCustomerIdGetView.as_view(), name='ssearch_order_g'),
 ]
