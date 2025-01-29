@@ -215,7 +215,10 @@ class OrderValidator():
     @classmethod
     def check_order_open_to_customer(cls, customer_id)-> bool:
         orders = Order.objects.all().filter(id_customer_id=customer_id)
-        for order in orders:
-            if order.order_status:
-                return False
+        check_order_status: list = [
+            order.order_status for order in orders
+        ]
+        print(check_order_status)
+        if True in check_order_status:
+            return False
         return True
