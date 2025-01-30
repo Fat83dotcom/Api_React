@@ -2,7 +2,7 @@
 from rest_framework.views import APIView
 from rest_framework import serializers
 from rest_framework.response import Response
-from api.models import Customer, Product, ProductCategory, Order
+from api.models import Customer, Product, ProductCategory, Order, ProductCategory
 from rest_framework import status
 from django.db.models import Q
 
@@ -135,6 +135,25 @@ class ProductPostView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class SearchProductByName(APIView):
+    pass
+
+
+class SearchProductByCategory(APIView):
+    def get(self, request):
+        search_category = request.query_params.get('search_category', None)
+
+        if search_category.isnumeric() and search_category is not None:
+            query = Product.objects.filter(category__id=search_category)
+            if query.exists():
+                serializer = ProductSerializer(
+                    instance=query,
+                    many=True
+                )
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
 class CreateOrder(APIView):
     def post(self, request):
         serializer = OrderCreateSerializer(data=request.data)
@@ -195,6 +214,7 @@ class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
+            'id',
             'name',
             'price',
             'quantity',
