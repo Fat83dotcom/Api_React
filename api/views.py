@@ -88,7 +88,7 @@ class CustomerGetSearchView(APIView):
 
 class ProductGetView(APIView):
     def get(self, request):
-        query = Product.objects.all()
+        query = Product.objects.all()[:10]
         serializer = ProductSerializer(
             instance=query,
             many=True
