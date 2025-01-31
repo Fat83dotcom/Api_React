@@ -136,7 +136,19 @@ class ProductPostView(APIView):
 
 
 class SearchProductByName(APIView):
-    pass
+    def get(self, request):
+        search_product_name = request.query_params.get('search_name', None)
+
+        if search_product_name is not None:
+            query = Product.objects.filter(name__icontains=search_product_name)
+            if query.exists():
+                serializer = ProductSerializer(
+                    instance=query,
+                    many=True
+                )
+                return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_404_NOT_FOUND)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class SearchProductByCategory(APIView):
