@@ -28,7 +28,7 @@ class Product(models.Model):
 
 class Order(models.Model):
     id_customer = models.ForeignKey(
-        to=Customer, related_name='customer', on_delete=models.CASCADE
+        to=Customer, related_name='customer', on_delete=models.DO_NOTHING
     )
     date = models.DateField(auto_now_add=True)
     total = models.FloatField()
