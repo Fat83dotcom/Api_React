@@ -1,7 +1,7 @@
 from django.urls import path
 from api.views import CustomerGetView, CustomerPostView, ProductPostView, CustomerGetSearchView
 from api.views import CategoryGetView, ProductCategoryPostView, CreateOrder, SearchOrderCustomerIdGetView
-from api.views import ProductGetView, SearchProductByCategory, SearchProductByName
+from api.views import ProductGetView, SearchProductByCategory, SearchProductByName, AppendItemsToOrder
 
 urlpatterns = [
     path('get_products/', ProductGetView.as_view(), name='product_g'),
@@ -39,4 +39,5 @@ urlpatterns = [
         SearchProductByName.as_view(),
         name='search_p_name'
     ),
+    path('append_items/', AppendItemsToOrder.as_view(), name='append_items'),
 ]
