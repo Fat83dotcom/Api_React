@@ -2,7 +2,8 @@
 from rest_framework.views import APIView
 from rest_framework import serializers
 from rest_framework.response import Response
-from api.models import Customer, Product, ProductCategory, Order, ProductCategory
+from api.models import Customer, Product, ProductCategory
+from api.models import OrderItems, Order, ProductCategory
 from rest_framework import status
 from django.db.models import Q
 
@@ -178,8 +179,19 @@ class CreateOrder(APIView):
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class CustomerDataByOrder:
-    pass
+class AppendItemsToOrder(APIView):
+    def post(self, request):
+        print(request.data)
+        req = request.data
+        if CheckStock.check(req['quantity'], req['id_product']):
+            # se ok entao gravar o item senão retornar um erro de estoque
+            response = AddItemToOrder.add(request.data)
+            print(response)
+            # alterar o valor do pedido
+            # alterar a quantidade de produto
+
+            return Response({'msg': 'ok'}, status=status.HTTP_200_OK)
+        return Response({'msg': 'Estoque insuficiente.'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
 class SearchOrderCustomerIdGetView(APIView):
