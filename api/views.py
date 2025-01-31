@@ -275,8 +275,12 @@ class OrderValidator():
 
 
 class OrderSerializer(serializers.ModelSerializer):
-    customer_name = serializers.CharField(source='id_customer.name', read_only=True)
-    customer_second_name = serializers.CharField(source='id_customer.second_name', read_only=True)
+    customer_name = serializers.CharField(
+        source='id_customer.name', read_only=True
+    )
+    customer_second_name = serializers.CharField(
+        source='id_customer.second_name', read_only=True
+    )
 
     class Meta:
         model = Order
