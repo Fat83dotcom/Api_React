@@ -304,3 +304,40 @@ class OrderSerializer(serializers.ModelSerializer):
             'total',
             'order_status'
         ]
+
+
+class OrderItemsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItems
+        fields = ['id_order', 'id_product', 'quantity']
+
+    def create(self, validated_data):
+        return OrderItems.objects.create(**validated_data)
+
+# Controlers
+
+class CheckStock:
+
+    @classmethod
+    def check(cls, quantity, id):
+        if quantity is not None:
+            product = Product.objects.filter(pk=id).first()
+            return True if (product.quantity - quantity) > 0 else False
+
+
+class AddItemToOrder:
+
+    @classmethod
+    def add(cls, req: dict):
+        serializer = OrderItemsSerializer(data=req)
+        if serializer.is_valid():
+            serializer.save()
+            return serializer.data
+        return {'error': 'Verifique os dados.'}
+
+
+class SumOrder:
+
+    @classmethod
+    def add_up(cls, id_order, price):
+        pass
