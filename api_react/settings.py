@@ -78,22 +78,22 @@ WSGI_APPLICATION = 'api_react.wsgi.application'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'mssql',
-        'NAME': 'api_fernando',  # Nome do banco de dados
-        'USER': 'sa',   # Usuário do SQL Server
-        'PASSWORD': 'Ts@plus#dbase', # Senha do SQL Server
-        'HOST': '192.168.2.157',     # Ou o endereço IP do servidor
-        'PORT': '1433',          # Porta padrão do SQL Server
-        'OPTIONS': {
-            'driver': 'ODBC Driver 17 for SQL Server',  # Confirme o driver instalado
-            'TrustServerCertificate': 'yes',
-        }
-    }
     # 'default': {
-    #     'ENGINE': 'django.db.backends.sqlite3',
-    #     'NAME': BASE_DIR / 'db.sqlite3',
+    #     'ENGINE': 'mssql',
+    #     'NAME': 'api_fernando',  # Nome do banco de dados
+    #     'USER': 'sa',   # Usuário do SQL Server
+    #     'PASSWORD': 'Ts@plus#dbase', # Senha do SQL Server
+    #     'HOST': '192.168.2.157',     # Ou o endereço IP do servidor
+    #     'PORT': '1433',          # Porta padrão do SQL Server
+    #     'OPTIONS': {
+    #         'driver': 'ODBC Driver 17 for SQL Server',  # Confirme o driver instalado
+    #         'TrustServerCertificate': 'yes',
+    #     }
     # }
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
 }
 
 
