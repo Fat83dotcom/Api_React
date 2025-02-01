@@ -27,7 +27,10 @@ class CustomerGetView(APIView):
             instance=query,
             many=True
         )
-        return Response(serializer.data)
+        return Response(
+            {'msg': message['get']['sucess'], 'data': serializer.data},
+            status=status.HTTP_200_OK
+        )
 
 
 class CustomerGetSearchView(APIView):
@@ -64,7 +67,8 @@ class CustomerGetSearchView(APIView):
             first_name, second_name = part
 
             item = Customer.objects.filter(
-                Q(name__icontains=first_name) , Q(second_name__icontains=second_name)
+                Q(name__icontains=first_name),
+                Q(second_name__icontains=second_name)
             )
 
             if not item.exists():
@@ -79,7 +83,6 @@ class CustomerGetSearchView(APIView):
             )
 
             return Response(serializer.data, status=status.HTTP_200_OK)
-
 
         item = Customer.objects.filter(
             Q(name__icontains=search_name)
@@ -106,7 +109,10 @@ class ProductGetView(APIView):
             instance=query,
             many=True
         )
-        return Response(serializer.data)
+        return Response(
+            {'msg': message['get']['sucess'], 'data': serializer.data},
+            status=status.HTTP_200_OK
+        )
 
 
 class CategoryGetView(APIView):
@@ -117,8 +123,13 @@ class CategoryGetView(APIView):
                 instance=query,
                 many=True
             )
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_404_NOT_FOUND)
+            return Response(
+                {'msg': message['get']['sucess'], 'data': serializer.data},
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            {'msg': message['get']['error']}, status=status.HTTP_404_NOT_FOUND
+        )
 
 
 class CustomerPostView(APIView):
@@ -126,26 +137,44 @@ class CustomerPostView(APIView):
         serializer = CustomerSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'msg': message['post']['sucess'], 'data': serializer.data},
+                status=status.HTTP_201_CREATED
+            )
+        return Response(
+            {'msg': message['post']['error']},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class ProductCategoryPostView(APIView):
     def post(self, request):
-        serializer = ProductCategorySerializer(data=request.data)
+        serializer = CreateProductCategorySerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+            return Response(
+                {'msg': message['post']['sucess'], 'data': serializer.data},
+                status=status.HTTP_201_CREATED
+            )
+        return Response(
+            {'msg': message['post']['error']},
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
 
 class ProductPostView(APIView):
     def post(self, request):
         serializer = ProductSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'msg': message['post']['sucess'], 'data': serializer.data},
+                status=status.HTTP_201_CREATED
+            )
+        return Response(
+            {'msg': message['post']['error']},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class SearchProductByName(APIView):
@@ -159,9 +188,21 @@ class SearchProductByName(APIView):
                     instance=query,
                     many=True
                 )
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {
+                        'msg': message['get']['sucess'],
+                        'data': serializer.data
+                    },
+                    status=status.HTTP_200_OK
+                )
+            return Response(
+                {'msg': message['get']['not_found']},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        return Response(
+            {'msg': message['get']['error']},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class SearchProductByCategory(APIView):
@@ -175,9 +216,21 @@ class SearchProductByCategory(APIView):
                     instance=query,
                     many=True
                 )
-                return Response(serializer.data, status=status.HTTP_200_OK)
-            return Response(status=status.HTTP_404_NOT_FOUND)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response({
+                        'msg': message['get']['sucess'],
+                        'data': serializer.data
+                    },
+                    status=status.HTTP_200_OK
+                )
+            return Response(
+                {'msg': message['get']['not_found']},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        return Response(
+                {'msg': message['get']['error']},
+                status=status.HTTP_400_BAD_REQUES
+            )
+
 
 class CreateOrder(APIView):
     def post(self, request):
@@ -186,8 +239,12 @@ class CreateOrder(APIView):
         if OrderValidator.check_order_open_to_customer(customer_id):
             if serializer.is_valid():
                 serializer.save()
-                return Response(serializer.data, status=status.HTTP_201_CREATED)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    serializer.data, status=status.HTTP_201_CREATED
+                )
+            return Response(
+                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+            )
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
@@ -199,11 +256,15 @@ class AppendItemsToOrder(APIView):
             # se ok entao gravar o item senão retornar um erro de estoque
             response = AddItemToOrder.add(request.data)
             print(response)
+            SumOrder.add_up(req['id_order'], req['id_product'])
             # alterar o valor do pedido
             # alterar a quantidade de produto
 
             return Response({'msg': 'ok'}, status=status.HTTP_200_OK)
-        return Response({'msg': 'Estoque insuficiente.'}, status=status.HTTP_401_UNAUTHORIZED)
+        return Response(
+            {'msg': 'Estoque insuficiente.'},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
 
 
 class SearchOrderCustomerIdGetView(APIView):
@@ -213,7 +274,7 @@ class SearchOrderCustomerIdGetView(APIView):
         if not search_order:
             error = {'error': 'Falta parametro de consulta.'}
             return Response(error, status=status.HTTP_400_BAD_REQUEST)
-        
+
         if search_order.isnumeric():
             query = Order.objects.filter(id_customer=search_order).last()
             serializer = OrderSerializer(instance=query)
@@ -232,18 +293,9 @@ class CustomerSerializer(serializers.ModelSerializer):
             'phone',
             'address',
         ]
-    
+
     def create(self, validated_data):
         return Customer.objects.create(**validated_data)
-
-
-class ProductCategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ProductCategory
-        fields = ['category_name']
-    
-    def create(self, validated_data):
-        return ProductCategory.objects.create(**validated_data)
 
 
 class ProductSerializer(serializers.ModelSerializer):
@@ -267,11 +319,20 @@ class CustomerSearchSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'second_name']
 
 
+class CreateProductCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProductCategory
+        fields = ['category_name']
+
+    def create(self, validated_data):
+        return ProductCategory.objects.create(**validated_data)
+
+
 class ProductCategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = ProductCategory
         fields = ['id', 'category_name']
-    
+
     def create(self, validated_data):
         return ProductCategory.objects.create(**validated_data)
 
@@ -280,7 +341,7 @@ class OrderCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['id_customer', 'total']
-    
+
     def create(self, validated_data):
         return Order.objects.create(**validated_data)
 
@@ -288,7 +349,7 @@ class OrderCreateSerializer(serializers.ModelSerializer):
 class OrderValidator():
 
     @classmethod
-    def check_order_open_to_customer(cls, customer_id)-> bool:
+    def check_order_open_to_customer(cls, customer_id) -> bool:
         orders = Order.objects.all().filter(id_customer_id=customer_id)
         check_order_status: list = [
             order.order_status for order in orders
@@ -328,6 +389,7 @@ class OrderItemsSerializer(serializers.ModelSerializer):
 
 # Controlers
 
+
 class CheckStock:
 
     @classmethod
@@ -351,5 +413,7 @@ class AddItemToOrder:
 class SumOrder:
 
     @classmethod
-    def add_up(cls, id_order, price):
+    def add_up(cls, id_order, id_product):
+        price = Product.objects.filter(id=id_product).values('price').first()
+        total_order = Order.objects.filter()
         pass
