@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from api.models import Customer, Product, ProductCategory
 from api.models import OrderItems, Order
 from rest_framework import status
-from django.db.models import Q, F
+from django.db.models import Q
 
 message = {
     'get': {
@@ -15,7 +15,9 @@ message = {
     },
     'post': {
         'sucess': 'Item Registrado com Sucesso.',
-        'error': 'Não foi possivel registrar os dados.'
+        'error': 'Não foi possivel registrar os dados.',
+        'stock_error': 'Estoque insuficiente.',
+        'order_error': 'Não autorizado, cliente já possui pedido em aberto.'
     }
 }
 
@@ -49,7 +51,7 @@ class CustomerGetSearchView(APIView):
 
             if not item.exists():
                 return Response(
-                    {"msg": "Nenhum item foi encontrado"},
+                    {'data': [], 'msg': message['get']['not_found']},
                     status=status.HTTP_404_NOT_FOUND
                 )
 
@@ -58,7 +60,10 @@ class CustomerGetSearchView(APIView):
                 many=True
             )
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(
+                {'msg': message['get']['sucess'], 'data': serializer.data},
+                status=status.HTTP_200_OK
+            )
 
         part: list = search_name.split()
 
@@ -73,7 +78,7 @@ class CustomerGetSearchView(APIView):
 
             if not item.exists():
                 return Response(
-                    {"msg": "Nenhum item foi encontrado"},
+                    {'data': [], 'msg': message['get']['not_found']},
                     status=status.HTTP_404_NOT_FOUND
                 )
 
@@ -82,7 +87,10 @@ class CustomerGetSearchView(APIView):
                 many=True
             )
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(
+                {'msg': message['get']['sucess'], 'data': serializer.data},
+                status=status.HTTP_200_OK
+            )
 
         item = Customer.objects.filter(
             Q(name__icontains=search_name)
@@ -90,7 +98,7 @@ class CustomerGetSearchView(APIView):
 
         if not item.exists():
             return Response(
-                {"msg": "Nenhum item foi encontrado"},
+                {'data': [], 'msg': message['get']['not_found']},
                 status=status.HTTP_404_NOT_FOUND
             )
 
@@ -99,7 +107,10 @@ class CustomerGetSearchView(APIView):
             many=True
         )
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(
+            {'msg': message['get']['sucess'], 'data': serializer.data},
+            status=status.HTTP_200_OK
+        )
 
 
 class ProductGetView(APIView):
@@ -227,9 +238,9 @@ class SearchProductByCategory(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         return Response(
-                {'msg': message['get']['error']},
-                status=status.HTTP_400_BAD_REQUES
-            )
+            {'msg': message['get']['error']},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class CreateOrder(APIView):
@@ -243,9 +254,13 @@ class CreateOrder(APIView):
                     serializer.data, status=status.HTTP_201_CREATED
                 )
             return Response(
-                serializer.errors, status=status.HTTP_400_BAD_REQUEST
+                {'msg': message['post']['sucess'], 'data': serializer.data},
+                status=status.HTTP_201_CREATED
             )
-        return Response(status=status.HTTP_401_UNAUTHORIZED)
+        return Response(
+            {'data': [], 'msg': message['post']['order_error']},
+            status=status.HTTP_401_UNAUTHORIZED
+        )
 
 
 class AppendItemsToOrder(APIView):
@@ -256,14 +271,17 @@ class AppendItemsToOrder(APIView):
             # se ok entao gravar o item senão retornar um erro de estoque
             response = AddItemToOrder.add(request.data)
             print(response)
-            SumOrder.add_up(req['id_order'], req['id_product'])
+            # SumOrder.add_up(req['id_order'], req['id_product'])
             # alterar o valor do pedido
             # alterar a quantidade de produto
 
-            return Response({'msg': 'ok'}, status=status.HTTP_200_OK)
+            return Response(
+                {'msg': message['post']['sucess']},
+                status=status.HTTP_200_OK
+            )
         return Response(
-            {'msg': 'Estoque insuficiente.'},
-            status=status.HTTP_401_UNAUTHORIZED
+            {'data': [], 'msg': message['post']['stock_error']},
+            status=status.HTTP_400_BAD_REQUEST
         )
 
 
@@ -272,15 +290,23 @@ class SearchOrderCustomerIdGetView(APIView):
         search_order = request.query_params.get('search_order', None)
 
         if not search_order:
-            error = {'error': 'Falta parametro de consulta.'}
-            return Response(error, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'data': [], 'msg': message['get']['error']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         if search_order.isnumeric():
             query = Order.objects.filter(id_customer=search_order).last()
             serializer = OrderSerializer(instance=query)
 
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'msg': message['get']['sucess'], 'data': serializer.data},
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            {'data': [], 'msg': message['get']['error']},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class CustomerSerializer(serializers.ModelSerializer):
