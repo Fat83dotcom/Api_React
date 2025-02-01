@@ -3,9 +3,21 @@ from rest_framework.views import APIView
 from rest_framework import serializers
 from rest_framework.response import Response
 from api.models import Customer, Product, ProductCategory
-from api.models import OrderItems, Order, ProductCategory
+from api.models import OrderItems, Order
 from rest_framework import status
-from django.db.models import Q
+from django.db.models import Q, F
+
+message = {
+    'get': {
+        'sucess': 'Consulta realizada com Sucesso.',
+        'error': 'Faltam paramentros de consulta ou parametro incorreto.',
+        'not_found': 'Não encontrado.',
+    },
+    'post': {
+        'sucess': 'Item Registrado com Sucesso.',
+        'error': 'Não foi possivel registrar os dados.'
+    }
+}
 
 
 class CustomerGetView(APIView):
