@@ -16,7 +16,6 @@ class ProductCategory(models.Model):
     category_name = models.CharField(max_length=100)
 
 
-
 class Product(models.Model):
     name = models.CharField(max_length=128)
     price = models.FloatField()
@@ -36,8 +35,12 @@ class Order(models.Model):
 
 
 class OrderItems(models.Model):
-    id_order = models.ForeignKey(to=Order, related_name='order_items', on_delete=models.CASCADE)
-    id_product = models.ForeignKey(to=Product, related_name='product', on_delete=models.CASCADE)
+    id_order = models.ForeignKey(
+        to=Order, related_name='order_items', on_delete=models.CASCADE
+    )
+    id_product = models.ForeignKey(
+        to=Product, related_name='product', on_delete=models.CASCADE
+    )
     quantity = models.IntegerField()
 
     def __str__(self):
