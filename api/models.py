@@ -42,6 +42,3 @@ class OrderItems(models.Model):
         to=Product, related_name='product', on_delete=models.CASCADE
     )
     quantity = models.IntegerField()
-
-    def __str__(self):
-        return f'{self.id_order}'
