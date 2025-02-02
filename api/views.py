@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from api.models import Customer, Product, ProductCategory
 from api.models import OrderItems, Order
 from rest_framework import status
-from django.db.models import Q
+from django.db.models import Q, F
 
 message = {
     'get': {
@@ -260,6 +260,52 @@ class CreateOrder(APIView):
         return Response(
             {'data': [], 'msg': message['post']['order_error']},
             status=status.HTTP_401_UNAUTHORIZED
+        )
+
+
+class SearchProductsByOrder(APIView):
+    def get(self, request):
+        search_params = request.query_params.get('products_by_order')
+        if search_params is not None:
+            query = OrderItems.objects.filter(
+                id_order=search_params
+            ).select_related('id_product').values(
+                'id_order__id',
+                'id_product__id',
+                'id_product__name',
+                'id_product__price',
+                'quantity'
+            )
+
+            if query.exists():
+                data: list = []
+                for item in query:
+                    item_data = {
+                        'id_order': item['id_order__id'],
+                        'id_product': item['id_product__id'],
+                        'product_name': item['id_product__name'],
+                        'price': item['id_product__price'],
+                        'quantity': item['quantity']
+                    }
+                    serializer = ItemsByOrderSerializer(
+                        data=item_data
+                    )
+                    serializer.is_valid(raise_exception=True)
+                    data.append(serializer.data)
+                return Response(
+                    {
+                        'msg': message['get']['sucess'],
+                        'data': data
+                    },
+                    status=status.HTTP_200_OK
+                )
+            return Response(
+                {'msg': message['get']['not_found']},
+                status=status.HTTP_404_NOT_FOUND
+            )
+        return Response(
+            {'msg': message['get']['error']},
+            status=status.HTTP_400_BAD_REQUEST
         )
 
 
