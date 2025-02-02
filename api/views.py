@@ -18,6 +18,11 @@ message = {
         'error': 'Não foi possivel registrar os dados.',
         'stock_error': 'Estoque insuficiente.',
         'order_error': 'Não autorizado, cliente já possui pedido em aberto.'
+    },
+    'delete': {
+        'sucess': 'Item excluído com sucesso.',
+        'error': 'Não Foi possível excluir os dados.',
+        'order_error': 'O pedido está fechado, não é permitido excluir.'
     }
 }
 
