@@ -317,8 +317,11 @@ class AppendItemsToOrder(APIView):
             # se ok entao gravar o item senão retornar um erro de estoque
             response = AddItemToOrder.add(request.data)
             print(response)
-            # SumOrder.add_up(req['id_order'], req['id_product'])
             # alterar o valor do pedido
+            total_order = SumOrder.add_up(
+                req['id_order'], req['id_product']
+            )
+            print(total_order)
             # alterar a quantidade de produto
 
             return Response(
@@ -459,6 +462,15 @@ class OrderItemsSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         return OrderItems.objects.create(**validated_data)
 
+
+class ItemsByOrderSerializer(serializers.Serializer):
+    id_order = serializers.IntegerField()
+    id_product = serializers.IntegerField()
+    product_name = serializers.CharField(max_length=128)
+    price = serializers.FloatField()
+    quantity = serializers.IntegerField()
+
+
 # Controlers
 
 
@@ -487,5 +499,8 @@ class SumOrder:
     @classmethod
     def add_up(cls, id_order, id_product):
         price = Product.objects.filter(id=id_product).values('price').first()
-        total_order = Order.objects.filter()
-        pass
+        print(price)
+        total_order = Order.objects.filter(
+            id=id_order
+        ).update(total=F('total') + price['price'])
+        return total_order
