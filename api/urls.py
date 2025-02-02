@@ -5,7 +5,7 @@ from api.views import CategoryGetView, ProductCategoryPostView
 from api.views import CreateOrder, SearchOrderCustomerIdGetView
 from api.views import ProductGetView, SearchProductByCategory
 from api.views import SearchProductByName, AppendItemsToOrder
-from api.views import SearchProductsByOrder
+from api.views import SearchProductsByOrder, DeleteItemsFromOrder
 
 urlpatterns = [
     path('get_products/', ProductGetView.as_view(), name='product_g'),
@@ -50,5 +50,10 @@ urlpatterns = [
         'search_products_by_order/',
         SearchProductsByOrder.as_view(),
         name='products_by_order'
+    ),
+    path(
+        'delete_items/<int:id_item>/<int:id_order>/<int:id_prod>/<int:qtd>/',
+        DeleteItemsFromOrder.as_view(),
+        name='delete_items'
     )
 ]
