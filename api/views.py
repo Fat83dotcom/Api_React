@@ -318,18 +318,21 @@ class SearchProductsByOrder(APIView):
 
 class AppendItemsToOrder(APIView):
     def post(self, request):
-        print(request.data)
-        req = request.data
-        if CheckStock.check(req['quantity'], req['id_product']):
+        if CheckStock.check(
+            request.data['quantity'], request.data['id_product']
+        ):
             # se ok entao gravar o item senão retornar um erro de estoque
-            response = AddItemToOrder.add(request.data)
-            print(response)
+            AddItemToOrder.add(request.data)
+
             # alterar o valor do pedido
-            total_order = SumOrder.add_up(
-                req['id_order'], req['id_product']
+            SumOrder.add_up(
+                request.data['id_order'], request.data['id_product']
             )
-            print(total_order)
+
             # alterar a quantidade de produto
+            SubtractStockFromProduct.sub(
+                request.data['id_product'], request.data['quantity']
+            )
 
             return Response(
                 {'msg': message['post']['sucess']},
