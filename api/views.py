@@ -347,14 +347,12 @@ class AppendItemsToOrder(APIView):
 class DeleteItemsFromOrder(APIView):
     def delete(self, request, **kwargs):
         try:
-
             id_item = kwargs.get('id_item')
             id_order = kwargs.get('id_order')
             id_product = kwargs.get('id_prod')
             quantity = kwargs.get('qtd')
-            print(id_item, id_order, id_product, quantity)
+
             if CheckOrderStatus.check(id_order):
-                print('true')
                 item_deleted = OrderItems.objects.get(id=id_item)
                 item_deleted.delete()
 
