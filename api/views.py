@@ -275,6 +275,7 @@ class SearchProductsByOrder(APIView):
             query = OrderItems.objects.filter(
                 id_order=search_params
             ).select_related('id_product').values(
+                'id',
                 'id_order__id',
                 'id_product__id',
                 'id_product__name',
@@ -286,6 +287,7 @@ class SearchProductsByOrder(APIView):
                 data: list = []
                 for item in query:
                     item_data = {
+                        'id_order_items': item['id'],
                         'id_order': item['id_order__id'],
                         'id_product': item['id_product__id'],
                         'product_name': item['id_product__name'],
