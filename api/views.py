@@ -554,8 +554,49 @@ class SumOrder:
     @classmethod
     def add_up(cls, id_order, id_product):
         price = Product.objects.filter(id=id_product).values('price').first()
-        print(price)
         total_order = Order.objects.filter(
             id=id_order
         ).update(total=F('total') + price['price'])
         return total_order
+
+
+class SubtractOrder:
+
+    @classmethod
+    def sub_up(cls, id_order, id_product):
+        price = Product.objects.filter(id=id_product).values('price').first()
+        total_order = Order.objects.filter(
+            id=id_order
+        ).update(total=F('total') - price['price'])
+        return total_order
+
+
+class SubtractStockFromProduct:
+
+    @classmethod
+    def sub(cls, id_product, sub_quantity):
+        if sub_quantity is not None:
+            result = Product.objects.filter(
+                id=id_product
+            ).update(quantity=F('quantity') - int(sub_quantity))
+            return result
+
+
+class AddStockToProduct:
+
+    @classmethod
+    def add(cls, id_product, add_quantity):
+        if add_quantity is not None:
+            result = Product.objects.filter(
+                id=id_product
+            ).update(quantity=F('quantity') + int(add_quantity))
+            return result
+
+
+class CheckOrderStatus:
+
+    @classmethod
+    def check(cls, id_order):
+        query = Order.objects.filter(id=id_order).first()
+        serializer = CheckOrderStatusSerializer(instance=query)
+        return serializer.data.get('order_status')
