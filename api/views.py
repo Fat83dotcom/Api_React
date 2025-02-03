@@ -506,7 +506,14 @@ class OrderItemsSerializer(serializers.ModelSerializer):
         return OrderItems.objects.create(**validated_data)
 
 
+class CheckOrderStatusSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = ['order_status']
+
+
 class ItemsByOrderSerializer(serializers.Serializer):
+    id_order_items = serializers.IntegerField()
     id_order = serializers.IntegerField()
     id_product = serializers.IntegerField()
     product_name = serializers.CharField(max_length=128)
@@ -514,23 +521,28 @@ class ItemsByOrderSerializer(serializers.Serializer):
     quantity = serializers.IntegerField()
 
 
+class SubtractProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['id', 'quantity']
+
 # Controlers
 
 
 class CheckStock:
 
     @classmethod
-    def check(cls, quantity, id):
+    def check(cls, quantity, product_id):
         if quantity is not None:
-            product = Product.objects.filter(pk=id).first()
-            return True if (product.quantity - quantity) > 0 else False
+            product = Product.objects.filter(pk=product_id).first()
+            return True if (product.quantity - quantity) >= 0 else False
 
 
 class AddItemToOrder:
 
     @classmethod
-    def add(cls, req: dict):
-        serializer = OrderItemsSerializer(data=req)
+    def add(cls, request: dict):
+        serializer = OrderItemsSerializer(data=request)
         if serializer.is_valid():
             serializer.save()
             return serializer.data
