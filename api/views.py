@@ -340,8 +340,41 @@ class AppendItemsToOrder(APIView):
             )
         return Response(
             {'data': [], 'msg': message['post']['stock_error']},
-            status=status.HTTP_400_BAD_REQUEST
+            status=status.HTTP_401_UNAUTHORIZED
         )
+
+
+class DeleteItemsFromOrder(APIView):
+    def delete(self, request, **kwargs):
+        try:
+
+            id_item = kwargs.get('id_item')
+            id_order = kwargs.get('id_order')
+            id_product = kwargs.get('id_prod')
+            quantity = kwargs.get('qtd')
+            print(id_item, id_order, id_product, quantity)
+            if CheckOrderStatus.check(id_order):
+                print('true')
+                item_deleted = OrderItems.objects.get(id=id_item)
+                item_deleted.delete()
+
+                # Estornar a quantidade de produto
+                AddStockToProduct.add(id_product, quantity)
+
+                # Estornar o valor do pedido
+                SubtractOrder.sub_up(id_order, id_product)
+
+                return Response(
+                    data={"data": [], "msg": message['delete']['sucess']},
+                    headers={"Content-Type": "application/json"},
+                    status=status.HTTP_204_NO_CONTENT
+                )
+            return Response(
+                {"data": [], "msg": message['delete']['order_error']},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        except Exception:
+            return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class SearchOrderCustomerIdGetView(APIView):
