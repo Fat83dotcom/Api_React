@@ -409,6 +409,43 @@ class SearchOrderCustomerIdGetView(APIView):
         )
 
 
+class CloseOrder(APIView):
+    def patch(self, request):
+        id_order = request.data.get('id')
+        print(id_order)
+        query = Order.objects.get(id=id_order)
+        serializer = OrderPureSerializer(
+            query,
+            data=request.data,
+            partial=True
+        )
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {'data': serializer.data, 'msg': message['patch']['sucess']},
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            {'data': [], 'msg': message['patch']['error']},
+            status=status.HTTP_204_NO_CONTENT
+        )
+
+
+class OrderGetView(APIView):
+    pass
+
+
+class OrderPureSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Order
+        fields = [
+            'id',
+            'date',
+            'total',
+            'order_status'
+        ]
+
+
 class CustomerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Customer
