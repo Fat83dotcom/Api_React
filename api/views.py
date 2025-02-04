@@ -540,6 +540,11 @@ class OrderSerializer(serializers.ModelSerializer):
             'total',
             'order_status'
         ]
+    
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['total'] = round(data.get('total'), 2)
+        return data
 
 
 class OrderItemsSerializer(serializers.ModelSerializer):
