@@ -17,12 +17,17 @@ message = {
         'sucess': 'Item Registrado com Sucesso.',
         'error': 'Não foi possivel registrar os dados.',
         'stock_error': 'Estoque insuficiente.',
-        'order_error': 'Não autorizado, cliente já possui pedido em aberto.'
+        'order_error': 'Não autorizado, cliente já possui pedido em aberto.',
+        'order_closed_error': 'Pedido fechado, operação não permitida.'
     },
     'delete': {
         'sucess': 'Item excluído com sucesso.',
         'error': 'Não Foi possível excluir os dados.',
         'order_error': 'O pedido está fechado, não é permitido excluir.'
+    },
+    'patch': {
+        'sucess': 'Item modificado com sucesso.',
+        'error': 'Não foi possivel modificar o item.'
     }
 }
 
