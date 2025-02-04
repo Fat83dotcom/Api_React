@@ -385,7 +385,7 @@ class DeleteItemsFromOrder(APIView):
             return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
-class SearchOrderCustomerIdGetView(APIView):
+class SearchLastOrderCustomerView(APIView):
     def get(self, request):
         search_order = request.query_params.get('search_order', None)
 
@@ -431,8 +431,24 @@ class CloseOrder(APIView):
         )
 
 
-class OrderGetView(APIView):
-    pass
+class AllOrdersFromCustomerView(APIView):
+    def get(self, request):
+        id_customer = request.query_params.get('id_customer')
+        query = Order.objects.filter(id_customer=id_customer)
+        serializer = OrderPureSerializer(
+            instance=query,
+            many=True
+        )
+
+        if query:
+            return Response(
+                {'data': serializer.data, 'msg': message['get']['sucess']},
+                status=status.HTTP_200_OK
+            )
+        return Response(
+            {'data': [], 'msg': message['get']['error']},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
 
 class OrderPureSerializer(serializers.ModelSerializer):
@@ -540,7 +556,7 @@ class OrderSerializer(serializers.ModelSerializer):
             'total',
             'order_status'
         ]
-    
+
     def to_representation(self, instance):
         data = super().to_representation(instance)
         data['total'] = round(data.get('total'), 2)
