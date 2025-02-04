@@ -2,11 +2,11 @@ from django.urls import path
 from api.views import CustomerGetView, CustomerPostView
 from api.views import ProductPostView, CustomerGetSearchView
 from api.views import CategoryGetView, ProductCategoryPostView
-from api.views import CreateOrder, SearchOrderCustomerIdGetView
+from api.views import CreateOrder, SearchLastOrderCustomerView
 from api.views import ProductGetView, SearchProductByCategory
 from api.views import SearchProductByName, AppendItemsToOrder
 from api.views import SearchProductsByOrder, DeleteItemsFromOrder
-from api.views import CloseOrder
+from api.views import CloseOrder, AllOrdersFromCustomerView
 
 urlpatterns = [
     path('get_products/', ProductGetView.as_view(), name='product_g'),
@@ -33,7 +33,7 @@ urlpatterns = [
     path('create_order/', CreateOrder.as_view(), name='crete_order_p'),
     path(
         'search_order/',
-        SearchOrderCustomerIdGetView.as_view(),
+        SearchLastOrderCustomerView.as_view(),
         name='ssearch_order_g'
     ),
     path(
