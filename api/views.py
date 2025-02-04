@@ -323,28 +323,33 @@ class SearchProductsByOrder(APIView):
 
 class AppendItemsToOrder(APIView):
     def post(self, request):
-        if CheckStock.check(
-            request.data['quantity'], request.data['id_product']
-        ):
-            # se ok entao gravar o item senão retornar um erro de estoque
-            AddItemToOrder.add(request.data)
+        if CheckOrderStatus.check(request.data['id_order']):
+            if CheckStock.check(
+                request.data['quantity'], request.data['id_product']
+            ):
+                # se ok entao gravar o item senão retornar um erro de estoque
+                AddItemToOrder.add(request.data)
 
-            # alterar o valor do pedido
-            SumOrder.add_up(
-                request.data['id_order'], request.data['id_product']
-            )
+                # alterar o valor do pedido
+                SumOrder.add_up(
+                    request.data['id_order'], request.data['id_product']
+                )
 
-            # alterar a quantidade de produto
-            SubtractStockFromProduct.sub(
-                request.data['id_product'], request.data['quantity']
-            )
+                # alterar a quantidade de produto
+                SubtractStockFromProduct.sub(
+                    request.data['id_product'], request.data['quantity']
+                )
 
+                return Response(
+                    {'msg': message['post']['sucess']},
+                    status=status.HTTP_200_OK
+                )
             return Response(
-                {'msg': message['post']['sucess']},
-                status=status.HTTP_200_OK
+                {'data': [], 'msg': message['post']['stock_error']},
+                status=status.HTTP_401_UNAUTHORIZED
             )
         return Response(
-            {'data': [], 'msg': message['post']['stock_error']},
+            {'data': [], 'msg': message['post']['order_closed_error']},
             status=status.HTTP_401_UNAUTHORIZED
         )
 
