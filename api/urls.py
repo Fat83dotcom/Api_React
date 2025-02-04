@@ -60,4 +60,9 @@ urlpatterns = [
     path(
         'close_order/', CloseOrder.as_view(), name='close_order'
     ),
+    path(
+        'all_orders_from_customer/',
+        AllOrdersFromCustomerView.as_view(),
+        name='all_orders'
+    )
 ]
