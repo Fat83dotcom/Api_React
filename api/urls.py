@@ -30,7 +30,7 @@ urlpatterns = [
         ProductCategoryPostView.as_view(),
         name='register_product_category'
     ),
-    path('create_order/', CreateOrder.as_view(), name='crete_order_p'),
+    path('create_order/', CreateOrder.as_view(), name='create_order_p'),
     path(
         'search_order/',
         SearchLastOrderCustomerView.as_view(),
