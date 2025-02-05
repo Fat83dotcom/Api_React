@@ -260,13 +260,14 @@ class CreateOrder(APIView):
         if OrderValidator.check_order_open_to_customer(customer_id):
             if serializer.is_valid():
                 serializer.save()
+
                 return Response(
-                    serializer.data, status=status.HTTP_201_CREATED
+                    {
+                        'msg': message['post']['sucess'],
+                        'data': serializer.data
+                    },
+                    status=status.HTTP_201_CREATED
                 )
-            return Response(
-                {'msg': message['post']['sucess'], 'data': serializer.data},
-                status=status.HTTP_201_CREATED
-            )
         return Response(
             {'data': [], 'msg': message['post']['order_error']},
             status=status.HTTP_401_UNAUTHORIZED
@@ -373,7 +374,7 @@ class DeleteItemsFromOrder(APIView):
                 SubtractOrder.sub_up(id_order, id_product)
 
                 return Response(
-                    data={"data": [], "msg": message['delete']['sucess']},
+                    {"data": [], "msg": message['delete']['sucess']},
                     headers={"Content-Type": "application/json"},
                     status=status.HTTP_204_NO_CONTENT
                 )
@@ -382,7 +383,10 @@ class DeleteItemsFromOrder(APIView):
                 status=status.HTTP_401_UNAUTHORIZED
             )
         except Exception:
-            return Response(status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"data": [], "msg": message['delete']['order_error']},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class SearchLastOrderCustomerView(APIView):
@@ -434,16 +438,21 @@ class CloseOrder(APIView):
 class AllOrdersFromCustomerView(APIView):
     def get(self, request):
         id_customer = request.query_params.get('id_customer')
-        query = Order.objects.filter(id_customer=id_customer)
-        serializer = OrderPureSerializer(
-            instance=query,
-            many=True
-        )
+        if isinstance(id_customer, str):
+            query = Order.objects.filter(id_customer=id_customer)
+            serializer = OrderPureSerializer(
+                instance=query,
+                many=True
+            )
 
-        if query:
+            if query:
+                return Response(
+                    {'data': serializer.data, 'msg': message['get']['sucess']},
+                    status=status.HTTP_200_OK
+                )
             return Response(
-                {'data': serializer.data, 'msg': message['get']['sucess']},
-                status=status.HTTP_200_OK
+                {'data': [], 'msg': message['get']['not_found']},
+                status=status.HTTP_400_BAD_REQUEST
             )
         return Response(
             {'data': [], 'msg': message['get']['error']},
